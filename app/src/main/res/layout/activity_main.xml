@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center_horizontal"
+    android:background="@color/background">
+
+    <!-- Large App Logo -->
+    <ImageView
+        android:id="@+id/logoImageView"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:src="@drawable/logo"
+        android:layout_marginBottom="48dp"
+        android:contentDescription="App Logo" />
+
+    <!-- Camera Button -->
+    <Button
+        android:id="@+id/buttonCamera"
+        style="@style/MainMenuButton"
+        android:text="Capture from Camera"
+        android:layout_marginTop="48dp" />
+
+    <!-- Gallery Button -->
+    <Button
+        android:id="@+id/buttonGallery"
+        style="@style/MainMenuButton"
+        android:text="Import from Gallery" />
+
+    <!-- History Button -->
+    <Button
+        android:id="@+id/buttonHistory"
+        style="@style/MainMenuButton"
+        android:text="View History" />
+
+</LinearLayout>
