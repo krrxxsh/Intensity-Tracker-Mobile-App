@@ -15,21 +15,36 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <ImageView
-            android:id="@+id/processedImageView"
+        <!-- Wrap the image in a MaterialCardView for proper curved clipping and elevation -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/imageCard"
             android:layout_width="match_parent"
             android:layout_height="260dp"
             android:layout_marginBottom="20dp"
-            android:scaleType="fitCenter"
-            android:background="@drawable/rounded_border"
-            android:contentDescription="Processed Image" />
+            app:cardCornerRadius="32dp"
+            app:cardElevation="8dp"
+            app:cardPreventCornerOverlap="true"
+            app:cardUseCompatPadding="true"
+            android:clipToOutline="true"
+            android:backgroundTint="@android:color/white">
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/processedImageView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="Processed Image"
+                app:shapeAppearanceOverlay="@style/ImageCurvedShapeOverlay"/>
+        </com.google.android.material.card.MaterialCardView>
 
+        <!-- Result Card with softer shadow and correct background -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
+            app:cardPreventCornerOverlap="true"
+            app:cardUseCompatPadding="true"
             android:backgroundTint="@android:color/white">
 
             <LinearLayout

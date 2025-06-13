@@ -1,6 +1,7 @@
 package com.example.intensitytracker;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -8,6 +9,7 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -43,6 +45,9 @@ public class ImageProcessingActivity extends AppCompatActivity {
     private TextView resultTextView;
     private HistoryDatabase database;
 
+    private String originalImageName = null;
+    private Uri lastImageUri = null;
+
     static {
         if (!OpenCVLoader.initDebug()) {
             Log.e("OpenCV", "Unable to load OpenCV");
@@ -55,6 +60,8 @@ public class ImageProcessingActivity extends AppCompatActivity {
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                     Uri imageUri = result.getData().getData();
+                    lastImageUri = imageUri;
+                    originalImageName = getFileNameFromUri(imageUri);
                     launchCropper(imageUri);
                 }
             });
@@ -64,6 +71,8 @@ public class ImageProcessingActivity extends AppCompatActivity {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                     Bitmap bitmap = (Bitmap) result.getData().getExtras().get("data");
                     Uri tempUri = getImageUriFromBitmap(bitmap);
+                    lastImageUri = tempUri;
+                    originalImageName = getFileNameFromUri(tempUri);
                     launchCropper(tempUri);
                 }
             });
@@ -72,9 +81,10 @@ public class ImageProcessingActivity extends AppCompatActivity {
             registerForActivityResult(new CropImageContract(), result -> {
                 if (result.isSuccessful()) {
                     Uri croppedUri = result.getUriContent();
+                    lastImageUri = croppedUri;
                     try {
                         Bitmap selectedBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), croppedUri);
-                        processImage(selectedBitmap);
+                        processImage(selectedBitmap, croppedUri);
                     } catch (IOException e) {
                         e.printStackTrace();
                         Toast.makeText(this, "Failed to load cropped image", Toast.LENGTH_SHORT).show();
@@ -97,7 +107,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
         if ("camera".equals(source)) {
             openCamera();
         } else if ("gallery".equals(source)) {
-            openGallery();
+            openGallery(); // Use system file manager for gallery
         }
 
         Button saveButton = findViewById(R.id.saveButton);
@@ -119,14 +129,15 @@ public class ImageProcessingActivity extends AppCompatActivity {
     }
 
     private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType("image/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
         galleryLauncher.launch(intent);
     }
 
     private void launchCropper(Uri imageUri) {
         CropImageOptions cropOptions = new CropImageOptions();
         cropOptions.guidelines = CropImageView.Guidelines.ON;
-
         CropImageContractOptions options = new CropImageContractOptions(imageUri, cropOptions);
         cropImageLauncher.launch(options);
     }
@@ -138,7 +149,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
         return Uri.parse(path);
     }
 
-    private void processImage(Bitmap bitmap) {
+    private void processImage(Bitmap bitmap, Uri croppedUri) {
         if (bitmap == null) return;
 
         Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
@@ -176,11 +187,15 @@ public class ImageProcessingActivity extends AppCompatActivity {
 
         imageView.setImageBitmap(mutableBitmap);
 
+        String imageName = (originalImageName != null) ? originalImageName : "Unnamed_Image";
+
         String result = String.format(
-                "Mean Intensity: %.2f\n" +
+                "Image Name: %s\n" +
+                        "Mean Intensity: %.2f\n" +
                         "Min: %.2f   Max: %.2f\n" +
                         "Location: X = %d, Y = %d\n" +
                         "ROI Size: %d x %d (%.0f pixels)",
+                imageName,
                 meanIntensity, minIntensity, maxIntensity,
                 startX, startY, width, height, (double) width * height
         );
@@ -192,9 +207,45 @@ public class ImageProcessingActivity extends AppCompatActivity {
         mutableBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] imageBytes = stream.toByteArray();
 
-        ImageEntity entity = new ImageEntity(imageBytes, meanIntensity, System.currentTimeMillis());
+        ImageEntity entity = new ImageEntity(
+                imageName,
+                startX,
+                startY,
+                width,
+                height,
+                (float) maxIntensity,
+                (float) minIntensity,
+                (float) meanIntensity,
+                imageBytes,
+                System.currentTimeMillis()
+        );
         new Thread(() -> {
             database.historyDao().insert(entity);
         }).start();
+    }
+
+    private String getFileNameFromUri(Uri uri) {
+        String result = null;
+        if (uri == null) return null;
+        if ("content".equals(uri.getScheme())) {
+            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int idx = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (idx != -1) result = cursor.getString(idx);
+                }
+            }
+        }
+        if (result == null) {
+            String path = uri.getPath();
+            if (path != null) {
+                int cut = path.lastIndexOf('/');
+                if (cut != -1 && cut + 1 < path.length()) {
+                    result = path.substring(cut + 1);
+                } else {
+                    result = path;
+                }
+            }
+        }
+        return result;
     }
 }
