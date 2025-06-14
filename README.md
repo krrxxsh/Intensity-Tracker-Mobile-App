@@ -69,7 +69,13 @@ Android will prompt you to grant these permissions as needed.
 
 ## Screenshots
 
-> _Add screenshots here to showcase key features and UI._
+<p float="left">
+  <img src="screenshot1(1).jpeg" width="200"/>
+  <img src="screenshot1(2).png" width="200"/>
+  <img src="screenshot1(3).png" width="200"/>
+  <img src="screenshot1(4).png" width="200"/>
+  <img src="screenshot1(5).png" width="200"/>
+</p>
 
 ## Contributing
 
