@@ -89,6 +89,4 @@ Contributions are welcome! Please open an issue or submit a pull request with im
 
 **[krrxxsh](https://github.com/krrxxsh)**
 
----
 
-**Note:** This README was generated automatically by analyzing the repository. For further customization or questions, feel free to edit or ask!
