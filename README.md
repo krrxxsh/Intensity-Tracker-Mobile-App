@@ -70,11 +70,11 @@ Android will prompt you to grant these permissions as needed.
 ## Screenshots
 
 <p float="left">
-  <img src="screenshot1(1).jpeg" width="200"/>
-  <img src="screenshot1(2).png" width="200"/>
-  <img src="screenshot1(3).png" width="200"/>
-  <img src="screenshot1(4).png" width="200"/>
-  <img src="screenshot1(5).png" width="200"/>
+  <img src="screenshot1 (5).jpg" width="150"/>
+   <img src="screenshot1 (6).jpg" width="150"/>
+   <img src="screenshot1 (4).jpg" width="150"/>
+   <img src="screenshot1 (1).jpg" width="150"/>
+   <img src="screenshot1 (2).jpg" width="150"/>
 </p>
 
 ## Contributing
