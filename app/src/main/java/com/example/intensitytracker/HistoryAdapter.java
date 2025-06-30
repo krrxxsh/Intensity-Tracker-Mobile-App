@@ -1,5 +1,7 @@
 package com.example.intensitytracker;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,6 +74,15 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
             } else {
                 selectedPositions.remove(adapterPosition);
             }
+        });
+
+        // NEW: Thumbnail click listener
+        holder.image.setOnClickListener(v -> {
+            Context context = holder.itemView.getContext();
+            Intent intent = new Intent(context, ImageProcessingActivity.class);
+            intent.putExtra("fromHistory", true);
+            intent.putExtra("imageId", imageEntity.getId());
+            context.startActivity(intent);
         });
     }
 

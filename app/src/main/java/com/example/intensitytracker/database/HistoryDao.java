@@ -13,4 +13,7 @@ public interface HistoryDao {
 
     @Query("SELECT * FROM image_table ORDER BY timestamp DESC")
     List<ImageEntity> getAllImages();
+
+    @Query("SELECT * FROM image_table WHERE id = :imageId")
+    ImageEntity getImageById(int imageId);
 }

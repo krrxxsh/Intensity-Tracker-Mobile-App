@@ -103,6 +103,39 @@ public class ImageProcessingActivity extends AppCompatActivity {
         resultTextView = findViewById(R.id.intensityValueTextView);
         database = HistoryDatabase.getInstance(this);
 
+        // --- Feature: Show result from history if requested ---
+        Intent intent = getIntent();
+        boolean fromHistory = intent.getBooleanExtra("fromHistory", false);
+        if (fromHistory) {
+            int imageId = intent.getIntExtra("imageId", -1);
+            if (imageId != -1) {
+                new Thread(() -> {
+                    ImageEntity entity = database.historyDao().getImageById(imageId);
+                    runOnUiThread(() -> {
+                        if (entity != null) {
+                            imageView.setImageBitmap(entity.getImageBitmap());
+                            String result = String.format(
+                                    "Image Name: %s\n" +
+                                            "Mean Intensity: %.2f\n" +
+                                            "Min: %.2f   Max: %.2f\n" +
+                                            "Location: X = %d, Y = %d\n" +
+                                            "ROI Size: %d x %d (%.0f pixels)",
+                                    entity.getImageName(),
+                                    entity.getAvgIntensity(), entity.getMinIntensity(), entity.getMaxIntensity(),
+                                    entity.getX(), entity.getY(), entity.getWidth(), entity.getHeight(), (double) entity.getWidth() * entity.getHeight()
+                            );
+                            resultTextView.setText(result);
+                        } else {
+                            Toast.makeText(this, "Could not load history image.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }).start();
+            }
+            // Prevent further default processing
+            return;
+        }
+        // --- End Feature ---
+
         String source = getIntent().getStringExtra("source");
         if ("camera".equals(source)) {
             openCamera();
@@ -118,8 +151,8 @@ public class ImageProcessingActivity extends AppCompatActivity {
         });
 
         historyButton.setOnClickListener(v -> {
-            Intent intent = new Intent(ImageProcessingActivity.this, HistoryActivity.class);
-            startActivity(intent);
+            Intent intent2 = new Intent(ImageProcessingActivity.this, HistoryActivity.class);
+            startActivity(intent2);
         });
     }
 
@@ -162,7 +195,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
         Core.MinMaxLocResult mmr = Core.minMaxLoc(gray);
         Point maxLoc = mmr.maxLoc;
 
-        int roiSize = 6;
+        int roiSize = 10;
         int startX = (int) Math.max(0, maxLoc.x - roiSize / 2);
         int startY = (int) Math.max(0, maxLoc.y - roiSize / 2);
         int width = (int) Math.min(roiSize, gray.cols() - startX);
