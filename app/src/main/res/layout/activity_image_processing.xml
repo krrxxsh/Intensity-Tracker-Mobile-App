@@ -15,11 +15,11 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Wrap the image in a MaterialCardView for proper curved clipping and elevation -->
+        <!-- Image Card with dynamic height -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/imageCard"
             android:layout_width="match_parent"
-            android:layout_height="260dp"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             app:cardCornerRadius="32dp"
             app:cardElevation="8dp"
@@ -27,16 +27,18 @@
             app:cardUseCompatPadding="true"
             android:clipToOutline="true"
             android:backgroundTint="@android:color/white">
+
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/processedImageView"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
                 android:contentDescription="Processed Image"
                 app:shapeAppearanceOverlay="@style/ImageCurvedShapeOverlay"/>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Result Card with softer shadow and correct background -->
+        <!-- Result Card with styled text -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -65,15 +67,17 @@
 
                 <TextView
                     android:id="@+id/intensityValueTextView"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="0.0"
-                    android:textSize="22sp"
+                    android:text="Processing..."
+                    android:textSize="18sp"
+                    android:lineSpacingExtra="4dp"
                     android:textColor="@color/colorPrimary"
                     android:fontFamily="@font/poppins" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Bottom buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

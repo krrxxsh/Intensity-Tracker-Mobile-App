@@ -13,7 +13,7 @@
         android:id="@+id/logoImageView"
         android:layout_width="250dp"
         android:layout_height="250dp"
-        android:src="@drawable/logo"
+        android:src="@drawable/menu_new"
         android:layout_marginBottom="48dp"
         android:contentDescription="App Logo" />
 
@@ -29,6 +29,12 @@
         android:id="@+id/buttonGallery"
         style="@style/MainMenuButton"
         android:text="Import from Gallery" />
+
+    <!-- Video Button (NEW) -->
+    <Button
+        android:id="@+id/buttonVideo"
+        style="@style/MainMenuButton"
+        android:text="Capture Video and Select Frame" />
 
     <!-- History Button -->
     <Button

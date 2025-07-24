@@ -19,6 +19,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.text.HtmlCompat;
 
 import com.canhub.cropper.CropImageContract;
 import com.canhub.cropper.CropImageContractOptions;
@@ -103,7 +104,20 @@ public class ImageProcessingActivity extends AppCompatActivity {
         resultTextView = findViewById(R.id.intensityValueTextView);
         database = HistoryDatabase.getInstance(this);
 
-        // --- Feature: Show result from history if requested ---
+        String frameUriStr = getIntent().getStringExtra("frameUri");
+        if (frameUriStr != null) {
+            Uri frameUri = Uri.parse(frameUriStr);
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), frameUri);
+                originalImageName = getFileNameFromUri(frameUri);
+                processImage(bitmap, frameUri);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Failed to load frame image", Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
+
         Intent intent = getIntent();
         boolean fromHistory = intent.getBooleanExtra("fromHistory", false);
         if (fromHistory) {
@@ -115,32 +129,30 @@ public class ImageProcessingActivity extends AppCompatActivity {
                         if (entity != null) {
                             imageView.setImageBitmap(entity.getImageBitmap());
                             String result = String.format(
-                                    "Image Name: %s\n" +
-                                            "Mean Intensity: %.2f\n" +
-                                            "Min: %.2f   Max: %.2f\n" +
-                                            "Location: X = %d, Y = %d\n" +
-                                            "ROI Size: %d x %d (%.0f pixels)",
+                                    "<b>Image Name:</b> %s<br><br>" +
+                                            "<b>Mean Intensity:</b> %.2f<br>" +
+                                            "<b>Min:</b> %.2f &nbsp;&nbsp; <b>Max:</b> %.2f<br>" +
+                                            "<b>Location:</b> X = %d, Y = %d<br>" +
+                                            "<b>ROI Size:</b> %d x %d (%.0f pixels)",
                                     entity.getImageName(),
                                     entity.getAvgIntensity(), entity.getMinIntensity(), entity.getMaxIntensity(),
                                     entity.getX(), entity.getY(), entity.getWidth(), entity.getHeight(), (double) entity.getWidth() * entity.getHeight()
                             );
-                            resultTextView.setText(result);
+                            resultTextView.setText(HtmlCompat.fromHtml(result, HtmlCompat.FROM_HTML_MODE_LEGACY));
                         } else {
                             Toast.makeText(this, "Could not load history image.", Toast.LENGTH_SHORT).show();
                         }
                     });
                 }).start();
             }
-            // Prevent further default processing
             return;
         }
-        // --- End Feature ---
 
         String source = getIntent().getStringExtra("source");
         if ("camera".equals(source)) {
             openCamera();
         } else if ("gallery".equals(source)) {
-            openGallery(); // Use system file manager for gallery
+            openGallery();
         }
 
         Button saveButton = findViewById(R.id.saveButton);
@@ -182,7 +194,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
         return Uri.parse(path);
     }
 
-    private void processImage(Bitmap bitmap, Uri croppedUri) {
+    private void processImage(Bitmap bitmap, Uri sourceUri) {
         if (bitmap == null) return;
 
         Bitmap mutableBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
@@ -223,19 +235,18 @@ public class ImageProcessingActivity extends AppCompatActivity {
         String imageName = (originalImageName != null) ? originalImageName : "Unnamed_Image";
 
         String result = String.format(
-                "Image Name: %s\n" +
-                        "Mean Intensity: %.2f\n" +
-                        "Min: %.2f   Max: %.2f\n" +
-                        "Location: X = %d, Y = %d\n" +
-                        "ROI Size: %d x %d (%.0f pixels)",
+                "<b>Image Name:</b> %s<br><br>" +
+                        "<b>Mean Intensity:</b> %.2f<br>" +
+                        "<b>Min:</b> %.2f &nbsp;&nbsp; <b>Max:</b> %.2f<br>" +
+                        "<b>Location:</b> X = %d, Y = %d<br>" +
+                        "<b>ROI Size:</b> %d x %d (%.0f pixels)",
                 imageName,
                 meanIntensity, minIntensity, maxIntensity,
                 startX, startY, width, height, (double) width * height
         );
 
-        resultTextView.setText(result);
+        resultTextView.setText(HtmlCompat.fromHtml(result, HtmlCompat.FROM_HTML_MODE_LEGACY));
 
-        // Save to Room DB in background thread
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         mutableBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] imageBytes = stream.toByteArray();

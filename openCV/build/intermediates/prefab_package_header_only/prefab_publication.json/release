@@ -1,5 +1,5 @@
 {
-  "installationFolder": "C:\\Users\\EDA LAB\\AndroidStudioProjects\\Intensitytracker\\openCV\\build\\intermediates\\prefab_package\\release\\prefab",
+  "installationFolder": "C:\\Users\\HP\\StudioProjects\\Intensity-Tracker-Mobile-App\\openCV\\build\\intermediates\\prefab_package\\release\\prefab",
   "gradlePath": ":openCV",
   "packageInfo": {
     "packageName": "openCV",
@@ -8,7 +8,7 @@
     "modules": [
       {
         "moduleName": "opencv_jni_shared",
-        "moduleHeaders": "C:\\Users\\EDA LAB\\AndroidStudioProjects\\Intensitytracker\\openCV\\native\\jni\\include",
+        "moduleHeaders": "C:\\Users\\HP\\StudioProjects\\Intensity-Tracker-Mobile-App\\openCV\\native\\jni\\include",
         "moduleExportLibraries": [],
         "abis": []
       }
